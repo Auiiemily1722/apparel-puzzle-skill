@@ -83,11 +83,33 @@ def _scale_to_width(img: Image.Image, target_w: int) -> Image.Image:
 
 
 def _fit_in_box(img: Image.Image, max_w: int, max_h: int) -> Image.Image:
-    """等比缩放到不超过 max_w × max_h 的框内。"""
-    scale = min(max_w / img.width, max_h / img.height, 1.0)
+    """等比缩放到不超过 max_w × max_h 的框内（允许放大，小图也能占满目标区）。"""
+    scale = min(max_w / img.width, max_h / img.height)
     new_w = max(1, round(img.width * scale))
     new_h = max(1, round(img.height * scale))
     return img.resize((new_w, new_h), Image.LANCZOS)
+
+
+def _content_bbox(img: Image.Image) -> Tuple[int, int, int, int]:
+    """返回非透明内容的最小包围框 (left, top, right, bottom)；全透明则返回整图。"""
+    alpha = img.split()[-1]
+    bbox = alpha.getbbox()
+    if bbox is None:
+        return (0, 0, img.width, img.height)
+    return bbox
+
+
+def _trim(img: Image.Image) -> Image.Image:
+    """按内容包围框裁剪掉四周透明留白（抠图产物常带大透明边，不裁剪会稀释视觉占比）。"""
+    l, t, r, b = _content_bbox(img)
+    if (l, t, r, b) == (0, 0, img.width, img.height):
+        return img
+    return img.crop((l, t, r, b))
+
+
+def trim_inputs(images: Sequence[Image.Image]) -> List[Image.Image]:
+    """批量裁剪透明留白（仅用于 logo/字符图；衣服原图不裁剪，保持原样）。"""
+    return [_trim(img) for img in images]
 
 
 def decide_two_logo_direction(logo_imgs: Sequence[Image.Image]) -> str:
@@ -104,7 +126,10 @@ def decide_two_logo_direction(logo_imgs: Sequence[Image.Image]) -> str:
 def _combo_natural(logo_imgs, text_imgs, cfg) -> Tuple[int, int, str]:
     """计算 logo 组合的自然尺寸（未缩放到画布前）与排布方向。"""
     layout = cfg["layout"]
-    gap = max(1, round(cfg.get("max_h", 1024) * layout.get("logo_text_gap_ratio", 0.06))) if "max_h" in cfg else 8
+    # 字符与主组合的间隙：按字符图高度的 25% 估算（用于组合自然高计算）
+    gap = 0
+    if text_imgs:
+        gap = max(1, round(max(t.height for t in text_imgs) * 0.25))
     if len(logo_imgs) >= 2:
         direction = decide_two_logo_direction(logo_imgs)
         if direction == "vertical":
@@ -185,10 +210,11 @@ def compute_layout(
     combo_zone_h = combo_zone_bottom - combo_zone_top
     combo_zone_w = canvas_w - pad_px * 2
 
-    # 可用高度 = 组合区（占 logo_zone 比例部分），字符占 text_share
+    # 可用高度 = 组合区（占 logo_zone 比例部分）；仅当有字符图时为字符预留空间
     logo_zone_px = round(canvas_h * logo_zone)
-    text_zone_px = max(1, round(logo_zone_px * text_share / max(logo_share, 1e-6)))
-    logo_zone_px = max(1, logo_zone_px - text_zone_px - round(logo_zone_px * text_gap))
+    if text_imgs:
+        text_zone_px = max(1, round(logo_zone_px * text_share / max(logo_share, 1e-6)))
+        logo_zone_px = max(1, logo_zone_px - text_zone_px - round(logo_zone_px * text_gap))
 
     if len(logo_imgs) >= 2 and direction != "single":
         if direction == "vertical":
@@ -255,6 +281,21 @@ def compute_layout(
             g_x = min_g_x
     g_y = canvas_h - pad_px - g_fit.height
     garment_box = (g_x, g_y, g_x + g_fit.width, g_y + g_fit.height)
+
+    # 重叠规避可能扩展了画布：返回前再次执行长边上限约束（等比，比例不变）
+    long_edge = max(canvas_w, canvas_h)
+    if long_edge > MAX_CANVAS:
+        scale = MAX_CANVAS / long_edge
+        canvas_w = max(1, round(canvas_w * scale))
+        canvas_h = max(1, round(canvas_h * scale))
+        garment_box = (
+            round(garment_box[0] * scale),
+            round(garment_box[1] * scale),
+            round(garment_box[2] * scale),
+            round(garment_box[3] * scale),
+        )
+        logo_boxes = [tuple(round(v * scale) for v in b) for b in logo_boxes]
+        text_boxes = [tuple(round(v * scale) for v in b) for b in text_boxes]
 
     return {
         "canvas": (canvas_w, canvas_h),

@@ -27,7 +27,7 @@ try:
 except ImportError as exc:  # pragma: no cover
     sys.exit(f"[X] 缺少依赖：{exc}\n    请先运行 scripts/setup.ps1 或 pip install -r requirements.txt")
 
-from layout import compute_layout, load_config
+from layout import compute_layout, load_config, trim_inputs
 
 
 def load_rgba(path: str) -> Image.Image:
@@ -69,8 +69,9 @@ def main() -> None:
         parser.error("最多支持 2 张 logo 图")
 
     cfg = load_config(args.config)
-    logos = [load_rgba(p) for p in args.logo]
-    texts = [load_rgba(p) for p in args.text]
+    # 裁剪 logo/字符图的透明留白（衣服原图不裁剪，原样贴入）
+    logos = trim_inputs([load_rgba(p) for p in args.logo])
+    texts = trim_inputs([load_rgba(p) for p in args.text])
     garment = load_rgba(args.garment)
 
     layout = compute_layout(logos, texts, garment, cfg)
