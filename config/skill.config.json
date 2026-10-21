@@ -1,0 +1,45 @@
+{
+  "skill_name": "apparel-puzzle",
+  "version": "1.0.0",
+  "trigger": {
+    "direct_images_only": true,
+    "ask_first": false,
+    "visual_role_detection": true,
+    "ask_when_uncertain": true,
+    "uncertain_question": "哪张是衣服原图？",
+    "keywords": ["拼图", "拼一起", "合成", "做成展示图", "印花排版", "logo拼衣服"]
+  },
+  "paths": {
+    "input_dir": "input",
+    "output_dir": "output",
+    "skill_dir": "skill",
+    "compose_script": "skill/scripts/compose_puzzle.py",
+    "psd_script": "skill/scripts/build_psd.py"
+  },
+  "output": {
+    "folder_format": "YYYYMMDD_HHMMSS",
+    "png_suffix": "_puzzle.png",
+    "psd_suffix": "_puzzle.psd",
+    "same_second_suffix": "_N"
+  },
+  "layout": {
+    "logo_zone_ratio": 0.65,
+    "garment_zone_ratio": 0.22,
+    "garment_ratio_min": 0.18,
+    "garment_ratio_max": 0.28,
+    "padding_ratio": 0.05,
+    "gap_ratio": 0.04,
+    "logo_text_gap_ratio": 0.06,
+    "logo_share_of_zone": 0.7,
+    "text_share_of_zone": 0.3,
+    "two_logo_ratio": 0.5,
+    "smart_canvas": true,
+    "smart_canvas_margin": 0.6,
+    "garment_anchor": "bottom_right"
+  },
+  "psd": {
+    "layers": ["original", "cutout", "logo", "text", "composite"],
+    "layer_names": ["Original", "Cutout", "Logo", "Text", "Composite"],
+    "layer_names_zh": ["衣服原图", "衣服元素", "Logo 主图", "Text 字符", "合成结果"]
+  }
+}

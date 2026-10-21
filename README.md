@@ -1,0 +1,63 @@
+# apparel-puzzle-skill · 服饰印花拼图技能项目
+
+给**多模态 agent** 使用的操作指南项目：用户在对话窗直接发送**透明底 logo 图（1~2 个，可带字符）+ 衣服原图**，agent 自动识别角色、智能布局，把 logo 组合（左侧大图）与衣服原图（右下角小图，不抠图）拼成一张**透明底展示图**，同时交付 **PNG + 五层 PSD**，产物自动归档到 `output/时间戳/`。
+
+> 效果参照"服饰印花设计展示图"：左侧主 logo（上）＋字符（下）的大图组合，右下角衣服成品小图，背景全透明。
+
+## 快速开始（新设备，约 1 分钟）
+
+```powershell
+git clone <GitHub 或 Gitee 地址>    # 仓库名 apparel-puzzle-skill
+cd apparel-puzzle-skill
+
+# 一键配置（需要 Python 3.9+）
+.\scripts\setup.ps1
+```
+
+## 使用
+
+1. 让多模态 agent 打开 / 接手本项目文件夹；
+2. 在对话窗**直接发送透明底 logo 图（1~2 张）+ 衣服原图**（无需任何文字）；
+3. agent 自动交付 `衣服图名_puzzle.png`（透明底合成图）+ `衣服图名_puzzle.psd`，并归档到 `output/YYYYMMDD_HHMMSS/`。
+
+### 输入要求
+
+| 输入 | 要求 |
+|---|---|
+| logo 图 | **必须透明底**（用户自行抠好；带背景会提示先去抠图项目处理） |
+| 字符图（可选） | 透明底文字/标语图，放在 logo 下方 |
+| 衣服原图 | **不抠图、不修饰**，发来什么样就贴什么样（等比缩放 + 右下角摆放） |
+
+## 目录地图（详细版见 `docs/PROJECT_MAP.md`）
+
+| 路径 | 用途 |
+|---|---|
+| `NAVIGATION.md` | 最高层导航：全量目录树 + 「任务→文件」索引（agent 先读） |
+| `AGENTS.md` | agent 行为手册：定位、触发规则、硬性规则 |
+| `skill/` | 技能本体：`SKILL.md` + 布局/合成/PSD 脚本 |
+| `config/skill.config.json` | 机器可读默认值（布局比例/触发/命名） |
+| `docs/PROJECT_MAP.md` | 项目地图与手册（agent 详读） |
+| `scripts/setup.ps1` | 一键配置脚本 |
+| `input/` | 输入素材留档 |
+| `output/` | 产物归档：`output/YYYYMMDD_HHMMSS/` |
+
+## 布局规则速览
+
+- 单 logo：左侧居中大图；1 logo + 字符：主 logo 在上、字符在下；
+- 2 个 logo：**50:50**，按 logo 现状智能排布（均横向→上下堆叠，其余→左右并排）；
+- 衣服：右下角小图（占画布高约 22%，可调）；
+- 画布比例：**智能自适应**（按 logo 数量与形状，长边上限 2048px）；
+- 背景：除 logo 与衣服外**全透明**。
+
+## 前置条件
+
+- 宿主 agent 具备**多模态视觉识别**（判断哪张是衣服、哪张是 logo）与图像合成能力；
+- 本机 Python 3.9+（合成与 PSD 脚本需要）；
+- 首次运行 setup 时联网安装 `psd-tools` 与 `Pillow`。
+
+## 常见问题
+
+- **PSD 怎么来的？** 优先用 agent 原生 PSD 能力；没有则运行 `skill/scripts/build_psd.py` 由布局结果构建五层 PSD（Original / Cutout / Logo / Text / Composite）。
+- **衣服会帮我抠图吗？** 不会。衣服原图按原样贴入（这是本项目硬性规则）。
+- **产物会进 git 吗？** 不会。`input/`、`output/` 默认被 `.gitignore` 忽略，仓库只同步项目本身。
+- **logo 不是透明底怎么办？** 提示你先去抠图项目处理（本项目不内置抠图）。
