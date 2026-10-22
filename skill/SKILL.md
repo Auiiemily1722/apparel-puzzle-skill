@@ -7,13 +7,14 @@
 
 ## 1. 技能定位
 
-**输入**：1~2 张透明底 logo 图（可含 1 张字符图）+ 1 张衣服原图。
-**输出**：透明底合成展示图（PNG）+ 分图层 PSD（每张上传图独立一层 + Composite 预览层）。
+**输入**：1~2 张透明底 logo 图（可含 1 张字符图）+ 1 张衣服原图 + **一串英文/数字序列号**（文字或图片形式均可）。
+**输出**：透明底合成展示图（PNG）+ 分图层 PSD（每张上传图独立一层 + Composite 预览层），**以序列号命名**。
 **风格**：参照"服饰印花设计展示图"——左侧 logo 组合大图，右下角衣服原图小图，背景全透明。
 
 ## 2. 触发与角色识别
 
-- 触发：用户在对话窗直接发送图片（不说话）或附带拼图类关键词 → 立即执行。
+- 触发：用户在对话窗直接发送图片（不说话）+ **一串英文/数字序列号**，或附带拼图类关键词 → 立即执行。
+- 序列号：从用户消息提取英文/数字串（如 `ABC123`、`KT-2024`）；若以图片发送（吊牌/标签截图），用视觉识别读出。
 - 角色识别（视觉判断，按优先级）：
   1. 带背景/不透明（照片、白底、实拍、有人穿着的衣物照）→ 衣服原图；
   2. 透明底 PNG（alpha 通道）→ logo；
@@ -30,7 +31,12 @@
 ### 3.2 角色识别（第 2 步）
 按第 2 节规则识别衣服图与 logo 组合件；不确定则兜底问一句。
 
-### 3.3 布局计算（第 3 步）
+### 3.3 提取序列号（第 3 步）
+- 从用户消息中提取序列号（英文/数字串；若以图片发送则视觉识别读出）；
+- 提取不到 → 标记"无序列号"，命名回退用衣服原图名；
+- 序列号用作本批 PNG / PSD 的文件名基础（见第 4 节命名规范）。
+
+### 3.4 布局计算（第 4 步）
 布局逻辑与 `skill/scripts/layout.py` 口径一致，默认值读 `config/skill.config.json` 的 `layout.*`：
 
 - **区域划分**：画布分为「左侧 logo 主区」与「右下角衣服区」。
@@ -49,7 +55,7 @@
   2. 衣服按目标高度缩放到 `garment_zone_ratio` 区间，贴右下角，与右下边界留 `padding_ratio` 边距；
   3. 若 logo 组合横向很宽 → 画布偏横向（宽:高 ≈ 4:3 / 16:9 方向）；若组合纵向很高 → 画布偏纵向（3:4 / 9:16 方向）。具体由 `layout.py` 计算输出。
 
-### 3.4 合成 PNG（第 4 步）
+### 3.5 合成 PNG（第 5 步）
 调用合成脚本（Pillow，不依赖宿主抠图/绘制能力，纯像素合成）：
 
 ```powershell
@@ -59,16 +65,15 @@ python skill/scripts/compose_puzzle.py `
 ```
 
 - 画布 RGBA 全透明 → 左侧贴 logo 组合 → 右下角贴衣服原图（**不抠图**，保持原比例缩放到目标框）；
-- 输出透明底 PNG，文件名 `原图名_puzzle.png`（衣服原图的文件名派生）。
+- 输出透明底 PNG，文件名 `序列号_puzzle.png`（无序列号回退 `衣服原图名_puzzle.png`）。
 
-### 3.5 生成 PSD（第 5 步）
+### 3.6 生成 PSD（第 6 步）
 优先 agent 原生 PSD 能力；否则运行兜底脚本：
 
 ```powershell
 python skill/scripts/build_psd.py `
-  --composite output/xx_puzzle.png --garment input/garment.jpg `
-  --logo input/logo1.png [--logo input/logo2.png] [--text input/text.png] `
-  --output output/xx_puzzle.psd [--config config/skill.config.json]
+  --garment input/garment.jpg --logo input/logo1.png [--logo input/logo2.png] `
+  [--text input/text.png] --output output/xx_puzzle.psd [--config config/skill.config.json]
 ```
 
 图层（自下而上，画布尺寸 = 合成图画布，层名英文避免编码问题；**每张上传图独立一层**，便于单独编辑）：
@@ -84,8 +89,8 @@ python skill/scripts/build_psd.py `
 
 > 层数 = 上传图数 + 1（Composite 预览层）。例：1 印花 + 1 原图 → Original / Logo-1 / Composite；2 印花 + 1 原图 → Original / Logo-1 / Logo-2 / Composite。
 
-### 3.6 交付与归档（第 6~7 步）
-- 对话框**同时**交付 PNG + PSD；
+### 3.7 交付与归档（第 7~8 步）
+- 对话框**同时**交付 PNG + PSD，文件名用序列号（`序列号_puzzle.png` / `序列号_puzzle.psd`）；
 - 归档到 `output/YYYYMMDD_HHMMSS/`（一批任务共用一个文件夹；同秒多批追加 `_1` `_2`）。
 
 ## 4. 命名规范
@@ -93,14 +98,14 @@ python skill/scripts/build_psd.py `
 | 项 | 规则 | 示例 |
 |---|---|---|
 | 归档文件夹 | `YYYYMMDD_HHMMSS`（本地时间 24h） | `20261021_151000` |
-| 合成 PNG | `衣服原图名_puzzle.png` | `tshirt_puzzle.png` |
-| PSD | `衣服原图名_puzzle.psd` | `tshirt_puzzle.psd` |
+| 合成 PNG | `序列号_puzzle.png`（无序列号回退衣服原图名） | `ABC123_puzzle.png` |
+| PSD | `序列号_puzzle.psd`（无序列号回退衣服原图名） | `ABC123_puzzle.psd` |
 | 输入留档 | 原名；重名追加时间戳 | `logo.png` / `logo_20261021_151000.png` |
 | 同秒防重 | 文件夹名追加 `_1` `_2` | `20261021_151000_1` |
 
 ## 5. 硬性规则
 
-1. PNG + PSD 成对交付；2. 每批独立时间戳文件夹不覆盖；3. 输入必存 `input/`；4. **衣服不抠图**、logo 必须透明底（带背景则提示先去抠图）；5. 合成图背景全透明；6. 产物不入 git；7. 执行窗口不改脚本不写项目文件。
+1. PNG + PSD 成对交付；2. 每批独立时间戳文件夹不覆盖；3. 输入必存 `input/`；4. **衣服不抠图**、logo 必须透明底（带背景则提示先去抠图）；5. 合成图背景全透明；6. 产物不入 git；7. 执行窗口不改脚本不写项目文件；8. **有序列号时产物必须用序列号命名**（不允许用衣服原图名替代）。
 
 ## 6. 修改默认行为的入口
 

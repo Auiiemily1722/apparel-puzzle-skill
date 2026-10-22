@@ -20,7 +20,9 @@
     "folder_format": "YYYYMMDD_HHMMSS",
     "png_suffix": "_puzzle.png",
     "psd_suffix": "_puzzle.psd",
-    "same_second_suffix": "_N"
+    "same_second_suffix": "_N",
+    "use_serial_for_naming": true,
+    "serial_fallback": "garment_name"
   },
   "layout": {
     "logo_zone_ratio": 0.65,
@@ -38,8 +40,8 @@
     "garment_anchor": "bottom_right"
   },
   "psd": {
-    "layers": ["original", "cutout", "logo", "text", "composite"],
-    "layer_names": ["Original", "Cutout", "Logo", "Text", "Composite"],
-    "layer_names_zh": ["衣服原图", "衣服元素", "Logo 主图", "Text 字符", "合成结果"]
+    "layers": ["original", "logo-1", "logo-2", "text-1", "text-2", "composite"],
+    "layer_names": ["Original", "Logo-1", "Logo-2", "Text-1", "Text-2", "Composite"],
+    "layer_names_zh": ["衣服原图", "印花1", "印花2", "字符1", "字符2", "合成结果"]
   }
 }

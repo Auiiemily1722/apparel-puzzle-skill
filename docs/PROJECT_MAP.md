@@ -4,7 +4,7 @@
 
 ## 1. 项目定位
 
-**一句话**：用户在对话窗发透明底 logo 图（1~2 个，可带字符）+ 衣服原图 → agent 视觉识别角色 → 智能布局（左侧 logo 组合大图 + 右下角衣服原图小图）→ 交付透明底 PNG + 分图层 PSD（每张上传图独立一层）→ 归档到 `output/`。
+**一句话**：用户在对话窗发透明底 logo 图（1~2 个，可带字符）+ 衣服原图 + 一串序列号 → agent 视觉识别角色、提取序列号 → 智能布局（左侧 logo 组合大图 + 右下角衣服原图小图）→ 交付透明底 PNG + 分图层 PSD（每张上传图独立一层，**以序列号命名**）→ 归档到 `output/`。
 
 **三条铁律**：
 1. 交付永远成对（PNG + PSD），不拆单；
@@ -33,27 +33,28 @@
 
 ## 3. 一次完整任务的路径流（示例）
 
-用户发送 `logo1.png`（透明底）+ `logo2.png`（透明底）+ `tshirt.jpg`（衣服原图），本地时间 2026-10-21 15:30:00：
+用户发送 `logo1.png`（透明底）+ `logo2.png`（透明底）+ `tshirt.jpg`（衣服原图）+ 序列号 `ABC123`，本地时间 2026-10-21 15:30:00：
 
 ```
-用户对话框 ── logo1.png, logo2.png, tshirt.jpg（不说话）
+用户对话框 ── logo1.png, logo2.png, tshirt.jpg + "ABC123"（不说话）
    │
    ▼（第1步 存档：原样存入 input/）
 input/logo1.png, input/logo2.png, input/tshirt.jpg
    │
    ▼（第2步 视觉识别：带背景=衣服，透明底=logo；没把握只问一句）
-   ▼（第3步 布局：2 logo → 50:50 智能排布；画布自适应）
+   ▼（第3步 提取序列号：ABC123 → 作为产物文件名基础）
+   ▼（第4步 布局：2 logo → 50:50 智能排布；画布自适应）
    │
-   ▼（第4步 合成：compose_puzzle.py）
-tshirt_puzzle.png（透明底：左侧双 logo + 右下角衣服）  ← 第4步
+   ▼（第5步 合成：compose_puzzle.py）
+ABC123_puzzle.png（透明底：左侧双 logo + 右下角衣服）  ← 第5步
    │
-   ▼（第5步 PSD：build_psd.py 兜底 或 agent 原生能力）
-tshirt_puzzle.psd（分图层：每张上传图独立一层 + Composite 预览）          ← 第5步
+   ▼（第6步 PSD：build_psd.py 兜底 或 agent 原生能力）
+ABC123_puzzle.psd（分图层：每张上传图独立一层 + Composite 预览）          ← 第6步
    │
-   ├── 对话框交付：tshirt_puzzle.png + tshirt_puzzle.psd  ← 第6步
+   ├── 对话框交付：ABC123_puzzle.png + ABC123_puzzle.psd  ← 第7步
    └── output/20261021_153000/
-          ├── tshirt_puzzle.png                          ← 第7步归档
-          └── tshirt_puzzle.psd
+          ├── ABC123_puzzle.png                          ← 第8步归档
+          └── ABC123_puzzle.psd
 ```
 
 同一秒多批任务 → `output/20261021_153000_1/`、`_2/`… 防重。
@@ -78,10 +79,12 @@ tshirt_puzzle.psd（分图层：每张上传图独立一层 + Composite 预览�
 | 项 | 规则 | 示例 |
 |---|---|---|
 | 归档文件夹 | `YYYYMMDD_HHMMSS`（本地时间 24h，无冒号） | `20261021_153000` |
-| 合成 PNG | `衣服原图名_puzzle.png` | `tshirt_puzzle.png` |
-| PSD | `衣服原图名_puzzle.psd` | `tshirt_puzzle.psd` |
+| 合成 PNG | `序列号_puzzle.png`（无序列号回退衣服原图名） | `ABC123_puzzle.png` |
+| PSD | `序列号_puzzle.psd`（无序列号回退衣服原图名） | `ABC123_puzzle.psd` |
 | 输入留档 | 原名；重名追加时间戳 | `logo1.png` / `logo1_20261021_153000.png` |
 | 同秒防重 | 文件夹名追加 `_1` `_2` | `20261021_153000_1` |
+
+> 序列号：用户消息中的英文/数字串（如 `ABC123`、`KT-2024`）；若以图片形式发送（吊牌/标签截图），agent 用视觉识别读出。提取不到时回退衣服原图名。
 
 ## 6. 故障排查
 
