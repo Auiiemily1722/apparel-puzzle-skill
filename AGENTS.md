@@ -12,7 +12,7 @@
 1. **先用视觉能力识别角色**：判断哪些图是 logo（透明底图案/品牌标）、哪张是衣服原图；
 2. **智能布局**：logo 组合放**左侧大图**（主 logo 在上、字符在下的垂直堆叠；若为两个 logo 则 50:50 按 logo 现状智能排布），衣服原图**原样**（不抠图）放**右下角小图**，画布比例按 logo 数量与形状自适应；
 3. **提取序列号**：从用户消息中提取那串英文/数字序列号（若序列号以图片形式发送，用视觉识别读出），作为本批产物命名；
-4. 在对话框**同时交付两个文件**：`序列号_puzzle.png`（透明底合成图）+ `序列号_puzzle.psd`（**分图层**：每张上传图独立一层——Original 衣服原图 / Logo-1、Logo-2… 每个印花各一层 / Text-1… 每个字符各一层 / Composite 合成预览）；未提供序列号时回退用衣服原图名命名；
+4. 在对话框**同时交付两个文件**：`序列号_puzzle.png`（透明底合成图）+ `序列号_puzzle.psd`（**每张上传图独立一层**：Original 衣服原图 / Logo-1、Logo-2… 每个印花各一层 / Text-1… 每个字符各一层，**无合成预览层**）；未提供序列号时回退用衣服原图名命名；
 5. 两份文件同时归档到 `output/YYYYMMDD_HHMMSS/`（每批任务新建时间戳文件夹，互不覆盖）。
 
 ## 二、前置条件（硬性）
@@ -50,7 +50,7 @@
 3. 提取序列号：从用户消息提取英文/数字序列号（图片形式则视觉识别读出；提取不到则标记"无序列号"）；
 4. 布局：读取 `config/skill.config.json` 的 `layout.*`，按参考图风格智能计算画布尺寸与各元素位置（复用 `skill/scripts/layout.py` 的逻辑口径）；
 5. 合成 PNG：调用 `skill/scripts/compose_puzzle.py`（Pillow）生成透明底合成图；
-6. 生成 PSD：优先 agent 原生 PSD 能力（**每张上传图独立一层**，层名规范：Original / Logo-1、Logo-2… / Text-1… / Composite）；否则运行 `python skill/scripts/build_psd.py`；
+6. 生成 PSD：优先 agent 原生 PSD 能力（**每张上传图独立一层**，层名规范：Original / Logo-1、Logo-2… / Text-1…，**不含合成预览层**）；否则运行 `python skill/scripts/build_psd.py`；
 7. 交付：对话框同时交付 PNG + PSD，**文件名用序列号**（`序列号_puzzle.png/.psd`；无序列号回退衣服原图名）；
 8. 归档：`output/YYYYMMDD_HHMMSS/` 下放置 `序列号_puzzle.png` + `序列号_puzzle.psd`。
 
@@ -80,7 +80,7 @@
 │   └── scripts/
 │       ├── layout.py        ← 布局计算核心（共用）
 │       ├── compose_puzzle.py← 合成：logo+字符+衣服 → 透明底 PNG
-│       └── build_psd.py     ← PSD 兜底：分图层 PSD（每张上传图一层 + Composite）
+│       └── build_psd.py     ← PSD 兜底：每张上传图独立一层（无合成预览层）
 ├── scripts/setup.ps1        ← 一键配置
 ├── input/                   ← 输入留档
 └── output/                  ← 产物归档（output/YYYYMMDD_HHMMSS/）

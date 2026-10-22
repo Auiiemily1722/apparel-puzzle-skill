@@ -40,8 +40,8 @@
     "garment_anchor": "bottom_right"
   },
   "psd": {
-    "layers": ["original", "logo-1", "logo-2", "text-1", "text-2", "composite"],
-    "layer_names": ["Original", "Logo-1", "Logo-2", "Text-1", "Text-2", "Composite"],
-    "layer_names_zh": ["衣服原图", "印花1", "印花2", "字符1", "字符2", "合成结果"]
+    "layers": ["original", "logo-1", "logo-2", "text-1", "text-2"],
+    "layer_names": ["Original", "Logo-1", "Logo-2", "Text-1", "Text-2"],
+    "layer_names_zh": ["衣服原图", "印花1", "印花2", "字符1", "字符2"]
   }
 }

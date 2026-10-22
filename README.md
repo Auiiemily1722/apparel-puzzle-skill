@@ -59,7 +59,7 @@ cd apparel-puzzle-skill
 
 ## 常见问题
 
-- **PSD 怎么来的？** 优先用 agent 原生 PSD 能力；没有则运行 `skill/scripts/build_psd.py` 构建分图层 PSD——**每张上传图独立一层**（Original 衣服 / Logo-1、Logo-2… 每个印花各一层 / Text-1… 每个字符各一层）+ Composite 合成预览层。
+- **PSD 怎么来的？** 优先用 agent 原生 PSD 能力；没有则运行 `skill/scripts/build_psd.py` 构建分图层 PSD——**每张上传图独立一层**（Original 衣服 / Logo-1、Logo-2… 每个印花各一层 / Text-1… 每个字符各一层），**无合成预览层**。
 - **衣服会帮我抠图吗？** 不会。衣服原图按原样贴入（这是本项目硬性规则）。
 - **产物会进 git 吗？** 不会。`input/`、`output/` 默认被 `.gitignore` 忽略，仓库只同步项目本身。
 - **logo 不是透明底怎么办？** 提示你先去抠图项目处理（本项目不内置抠图）。

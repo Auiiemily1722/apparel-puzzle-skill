@@ -26,7 +26,7 @@
 | `skill/SKILL.md` | 技能 | 技能定义 + 完整执行流程（可被安装为运行时技能） | agent 执行时读 |
 | `skill/scripts/layout.py` | 脚本 | 布局计算核心（画布/元素框），compose 与 PSD 共用 | agent 调用 |
 | `skill/scripts/compose_puzzle.py` | 脚本 | 合成：logo+字符+衣服 → 透明底 PNG | agent 调用 |
-| `skill/scripts/build_psd.py` | 脚本 | PSD 兜底：分图层 PSD（每张上传图独立一层 + Composite 预览） | agent 调用 |
+| `skill/scripts/build_psd.py` | 脚本 | PSD 兜底：每张上传图独立一层（无合成预览层） | agent 调用 |
 | `scripts/setup.ps1` | 脚本 | 一键配置：建目录、装依赖、可选安装技能 | 人类/agent 首次运行 |
 | `input/` | 数据 | **输入素材留档**（logo/字符/衣服原图，原样保存） | agent 写入 |
 | `output/` | 产物 | **生成结果归档**（每批任务一个时间戳子文件夹） | agent 写入 |
@@ -49,7 +49,7 @@ input/logo1.png, input/logo2.png, input/tshirt.jpg
 ABC123_puzzle.png（透明底：左侧双 logo + 右下角衣服）  ← 第5步
    │
    ▼（第6步 PSD：build_psd.py 兜底 或 agent 原生能力）
-ABC123_puzzle.psd（分图层：每张上传图独立一层 + Composite 预览）          ← 第6步
+ABC123_puzzle.psd（分图层：每张上传图独立一层，无合成预览层）          ← 第6步
    │
    ├── 对话框交付：ABC123_puzzle.png + ABC123_puzzle.psd  ← 第7步
    └── output/20261021_153000/
