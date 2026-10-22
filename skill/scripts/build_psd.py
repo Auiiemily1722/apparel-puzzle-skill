@@ -3,10 +3,9 @@
 
 图层结构（自下而上，层名英文避免 PSD 名称编码问题，画布=合成图画布）：
   1. Original  （衣服原图：右下角对应位置的图层，原样）
-  2. Cutout    （衣服元素层：同位置的透明背景衣服图层，供手动编辑）
-  3. Logo      （主 logo 图层：左侧区域）
-  4. Text      （字符图层：左侧区域，无字符时省略）
-  5. Composite （合成结果：全部元素合并后的最终画面）
+  2. Logo-1    （第 1 张 logo 图层：左侧区域；每张 logo 独立一层，Logo-2…）
+  3. Text-1    （第 1 张字符图图层：左侧区域；每张字符图独立一层，Text-2…，无字符时省略）
+  4. Composite （合成结果：全部元素合并后的最终画面，预览用）
 
 用法：
   python build_psd.py --garment garment.jpg --logo logo1.png [--logo logo2.png] \
@@ -83,12 +82,13 @@ def main() -> None:
     text_pastes = list(zip(texts, layout["text_boxes"]))
 
     layers: list = []
-    layers.append(("Original", [(garment, garment_box)]))      # 1. 衣服原图
-    layers.append(("Cutout", [(garment, garment_box)]))        # 2. 衣服元素层（同位置）
-    layers.append(("Logo", logo_pastes))                       # 3. 主 logo
-    if text_pastes:                                            # 4. 字符（无则省略）
-        layers.append(("Text", text_pastes))
-    layers.append(("Composite", [(garment, garment_box)] + logo_pastes + text_pastes))  # 5. 合成
+    # 每张上传图独立一层（用户可单独编辑每个印花/字符/衣服）：
+    layers.append(("Original", [(garment, garment_box)]))      # 1. 衣服原图（独立层）
+    for i, paste in enumerate(logo_pastes, 1):                 # 2+. 每个 logo 独立一层
+        layers.append((f"Logo-{i}", [paste]))
+    for i, paste in enumerate(text_pastes, 1):                 # 每个字符图独立一层
+        layers.append((f"Text-{i}", [paste]))
+    layers.append(("Composite", [(garment, garment_box)] + logo_pastes + text_pastes))  # 末. 合成预览
 
     psd = PSDImage.new("RGBA", size)
     for name, pastes in layers:

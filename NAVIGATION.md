@@ -33,7 +33,7 @@
 │   └── scripts/
 │       ├── layout.py               ←   布局计算核心（画布尺寸/元素定位，compose 与 PSD 共用）
 │       ├── compose_puzzle.py       ←   合成脚本：logo+字符+衣服 → 透明底 PNG
-│       └── build_psd.py            ←   PSD 兜底脚本：五层（Original/Cutout/Logo/Text/Composite）
+│       └── build_psd.py            ←   PSD 兜底脚本：分图层（每张上传图一层 + Composite）
 │
 ├── scripts/
 │   └── setup.ps1                   ← 一键配置（建目录/装依赖/可选安装技能）
