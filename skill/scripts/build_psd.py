@@ -10,7 +10,7 @@
 
 用法：
   python build_psd.py --garment garment.jpg --logo logo1.png [--logo logo2.png] \
-      [--text text.png] --output out_puzzle.psd [--config config/skill.config.json]
+      [--text text.png] --output out.psd [--config config/skill.config.json]
 
 依赖：psd-tools + Pillow（见 requirements.txt）。
 """

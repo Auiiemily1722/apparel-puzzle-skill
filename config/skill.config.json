@@ -18,8 +18,8 @@
   },
   "output": {
     "folder_format": "YYYYMMDD_HHMMSS",
-    "png_suffix": "_puzzle.png",
-    "psd_suffix": "_puzzle.psd",
+    "png_suffix": ".png",
+    "psd_suffix": ".psd",
     "same_second_suffix": "_N",
     "use_serial_for_naming": true,
     "serial_fallback": "garment_name"

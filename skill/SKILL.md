@@ -61,11 +61,11 @@
 ```powershell
 python skill/scripts/compose_puzzle.py `
   --logo input/logo1.png [--logo input/logo2.png] [--text input/text.png] `
-  --garment input/garment.jpg --output output/xx_puzzle.png [--config config/skill.config.json]
+  --garment input/garment.jpg --output output/xx.png [--config config/skill.config.json]
 ```
 
 - 画布 RGBA 全透明 → 左侧贴 logo 组合 → 右下角贴衣服原图（**不抠图**，保持原比例缩放到目标框）；
-- 输出透明底 PNG，文件名 `序列号_puzzle.png`（无序列号回退 `衣服原图名_puzzle.png`）。
+- 输出透明底 PNG，文件名 `序列号.png`（无序列号回退 `衣服原图名.png`）。
 
 ### 3.6 生成 PSD（第 6 步）
 优先 agent 原生 PSD 能力；否则运行兜底脚本：
@@ -73,7 +73,7 @@ python skill/scripts/compose_puzzle.py `
 ```powershell
 python skill/scripts/build_psd.py `
   --garment input/garment.jpg --logo input/logo1.png [--logo input/logo2.png] `
-  [--text input/text.png] --output output/xx_puzzle.psd [--config config/skill.config.json]
+  [--text input/text.png] --output output/xx.psd [--config config/skill.config.json]
 ```
 
 图层（自下而上，画布尺寸 = 合成图画布，层名英文避免编码问题；**每张上传图独立一层，无合成预览层**）：
@@ -89,7 +89,7 @@ python skill/scripts/build_psd.py `
 > 层数 = 上传图数。例：1 印花 + 1 原图 → Original / Logo-1；2 印花 + 1 原图 → Original / Logo-1 / Logo-2。
 
 ### 3.7 交付与归档（第 7~8 步）
-- 对话框**同时**交付 PNG + PSD，文件名用序列号（`序列号_puzzle.png` / `序列号_puzzle.psd`）；
+- 对话框**同时**交付 PNG + PSD，文件名用序列号（`序列号.png` / `序列号.psd`，不加任何后缀）；
 - 归档到 `output/YYYYMMDD_HHMMSS/`（一批任务共用一个文件夹；同秒多批追加 `_1` `_2`）。
 
 ## 4. 命名规范
@@ -97,8 +97,8 @@ python skill/scripts/build_psd.py `
 | 项 | 规则 | 示例 |
 |---|---|---|
 | 归档文件夹 | `YYYYMMDD_HHMMSS`（本地时间 24h） | `20261021_151000` |
-| 合成 PNG | `序列号_puzzle.png`（无序列号回退衣服原图名） | `ABC123_puzzle.png` |
-| PSD | `序列号_puzzle.psd`（无序列号回退衣服原图名） | `ABC123_puzzle.psd` |
+| 合成 PNG | `序列号.png`（无序列号回退衣服原图名） | `ABC123.png` |
+| PSD | `序列号.psd`（无序列号回退衣服原图名） | `ABC123.psd` |
 | 输入留档 | 原名；重名追加时间戳 | `logo.png` / `logo_20261021_151000.png` |
 | 同秒防重 | 文件夹名追加 `_1` `_2` | `20261021_151000_1` |
 

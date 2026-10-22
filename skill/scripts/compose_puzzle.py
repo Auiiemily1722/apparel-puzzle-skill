@@ -6,7 +6,7 @@
 
 用法：
   python compose_puzzle.py --logo logo1.png [--logo logo2.png] [--text text.png] \
-      --garment garment.jpg --output out_puzzle.png [--config config/skill.config.json]
+      --garment garment.jpg --output out.png [--config config/skill.config.json]
 
 约定：
   - logo 必须透明底（带白底/背景时脚本会警告，但不自动抠图）；

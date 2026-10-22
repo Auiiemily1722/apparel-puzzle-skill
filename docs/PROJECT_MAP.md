@@ -48,15 +48,15 @@ input/logo1.png, input/logo2.png, input/tshirt.jpg
    ▼（第4步 布局：2 logo → 50:50 智能排布；画布自适应）
    │
    ▼（第5步 合成：compose_puzzle.py）
-ABC123_puzzle.png（透明底：左侧双 logo + 右下角衣服）  ← 第5步
+ABC123.png（透明底：左侧双 logo + 右下角衣服）  ← 第5步
    │
    ▼（第6步 PSD：build_psd.py 兜底 或 agent 原生能力）
-ABC123_puzzle.psd（分图层：每张上传图独立一层，无合成预览层）          ← 第6步
+ABC123.psd（分图层：每张上传图独立一层，无合成预览层）          ← 第6步
    │
-   ├── 对话框交付：ABC123_puzzle.png + ABC123_puzzle.psd  ← 第7步
+   ├── 对话框交付：ABC123.png + ABC123.psd  ← 第7步
    └── output/20261021_153000/
-          ├── ABC123_puzzle.png                          ← 第8步归档
-          └── ABC123_puzzle.psd
+          ├── ABC123.png                          ← 第8步归档
+          └── ABC123.psd
 ```
 
 同一秒多批任务 → `output/20261021_153000_1/`、`_2/`… 防重。
@@ -81,8 +81,8 @@ ABC123_puzzle.psd（分图层：每张上传图独立一层，无合成预览层
 | 项 | 规则 | 示例 |
 |---|---|---|
 | 归档文件夹 | `YYYYMMDD_HHMMSS`（本地时间 24h，无冒号） | `20261021_153000` |
-| 合成 PNG | `序列号_puzzle.png`（无序列号回退衣服原图名） | `ABC123_puzzle.png` |
-| PSD | `序列号_puzzle.psd`（无序列号回退衣服原图名） | `ABC123_puzzle.psd` |
+| 合成 PNG | `序列号.png`（无序列号回退衣服原图名） | `ABC123.png` |
+| PSD | `序列号.psd`（无序列号回退衣服原图名） | `ABC123.psd` |
 | 输入留档 | 原名；重名追加时间戳 | `logo1.png` / `logo1_20261021_153000.png` |
 | 同秒防重 | 文件夹名追加 `_1` `_2` | `20261021_153000_1` |
 
