@@ -23,6 +23,8 @@
 | `requirements.txt` | 配置 | 依赖清单（psd-tools / Pillow） | setup.ps1 |
 | `config/skill.config.json` | 配置 | **机器可读默认值**：布局比例、触发开关、命名、路径 | agent 执行时读 |
 | `docs/PROJECT_MAP.md` | 文档 | 本文件 | agent/人类 |
+| `docs/一键安装提示词.md` | 文档 | 新电脑安装提示词（clone + 配置 + 自检，整段复制发给 agent） | 人类 |
+| `docs/更新拉取提示词.md` | 文档 | 已装电脑更新提示词（git pull 最新进度） | 人类 |
 | `skill/SKILL.md` | 技能 | 技能定义 + 完整执行流程（可被安装为运行时技能） | agent 执行时读 |
 | `skill/scripts/layout.py` | 脚本 | 布局计算核心（画布/元素框），compose 与 PSD 共用 | agent 调用 |
 | `skill/scripts/compose_puzzle.py` | 脚本 | 合成：logo+字符+衣服 → 透明底 PNG | agent 调用 |
